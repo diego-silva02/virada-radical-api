@@ -15,6 +15,7 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
 const Participants = db.collection("participants");
+const Donations = db.collection("donations");
 
 const app = express();
 
@@ -59,6 +60,46 @@ app.delete('/participants/:id', async (req, res) => {
     await Participants.doc(id).delete();
 
     res.send({msg: "Participante deletado com sucesso"});
+});
+
+app.post('/donations', async (req, res) => {
+    const data = req.body;
+    await Donations.add(data);
+
+    res.status(201).send({msg: "Doação criada com sucesso"})
+});
+
+app.get('/donations', async (req, res) => {
+    const snapshot = await Donations.get();
+    const filteredDonations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
+    res.send(filteredDonations);
+});
+
+app.get('/donations/:id', async (req, res) => {
+    const id = req.params.id;
+    const snapshot = await Donations.get();
+    const filteredDonations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
+    const donation = filteredDonations.filter(p => {
+        return p.id == id
+    })
+
+    res.send(donation);
+});
+
+app.put('/donations/:id', async (req, res) => {
+    const id = req.params.id;
+    await Donations.doc(id).update(req.body);
+
+    res.send({msg: "Doação atualizada com sucesso"});
+});
+
+app.delete('/donations/:id', async (req, res) => {
+    const id = req.params.id;
+    await Donations.doc(id).delete();
+
+    res.send({msg: "Doação deletada com sucesso"});
 });
 
 const port = process.env.PORT || 3000

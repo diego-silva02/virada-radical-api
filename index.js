@@ -61,6 +61,7 @@ app.delete('/participants/:id', async (req, res) => {
     res.send({msg: "Participante deletado com sucesso"});
 });
 
-app.listen(3000, () => {
+const port = process.env.PORT || 3000
+app.listen(port, () => {
     console.log("Aplicação rodando em http://localhost:3000");
 })

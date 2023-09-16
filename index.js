@@ -16,12 +16,14 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const Participants = db.collection("participants");
 const Donations = db.collection("donations");
+const Servants = db.collection("servants");
 
 const app = express();
 
 app.use(express.json())
 app.use(cors());
 
+// Participants CRUD
 app.post('/participants', async (req, res) => {
     const data = req.body;
     await Participants.add(data);
@@ -62,6 +64,7 @@ app.delete('/participants/:id', async (req, res) => {
     res.send({msg: "Participante deletado com sucesso"});
 });
 
+// Donations CRUD
 app.post('/donations', async (req, res) => {
     const data = req.body;
     await Donations.add(data);
@@ -100,6 +103,47 @@ app.delete('/donations/:id', async (req, res) => {
     await Donations.doc(id).delete();
 
     res.send({msg: "Doação deletada com sucesso"});
+});
+
+// Servants CRUD
+app.post('/servants', async (req, res) => {
+    const data = req.body;
+    await Servants.add(data);
+
+    res.status(201).send({msg: "Servo adicionado com sucesso"})
+});
+
+app.get('/servants', async (req, res) => {
+    const snapshot = await Servants.get();
+    const filteredServants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
+    res.send(filteredServants);
+});
+
+app.get('/servants/:id', async (req, res) => {
+    const id = req.params.id;
+    const snapshot = await Servants.get();
+    const filteredServants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
+    const servants = filteredServants.filter(p => {
+        return p.id == id
+    })
+
+    res.send(servants);
+});
+
+app.put('/servants/:id', async (req, res) => {
+    const id = req.params.id;
+    await Servants.doc(id).update(req.body);
+
+    res.send({msg: "Servo atualizado com sucesso"});
+});
+
+app.delete('/servants/:id', async (req, res) => {
+    const id = req.params.id;
+    await Servants.doc(id).delete();
+
+    res.send({msg: "Servo deletado com sucesso"});
 });
 
 const port = process.env.PORT || 3000
